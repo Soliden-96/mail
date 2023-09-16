@@ -48,15 +48,25 @@ function load_mailbox(mailbox) {
 
 function add_email(email){
   const new_email = document.createElement('div');
-
+  new_email.className = 'border border-secondary-subtle';
+  
+  const inside_class='d-inline-block w-25';
+  
   const sender = document.createElement('div');
   sender.innerHTML = `<strong>${email["sender"]}</strong>`;
+  sender.className = inside_class;
 
   const subject = document.createElement('div');
   subject.innerHTML = `${email["subject"]}`;
+  subject.className = inside_class;
 
   const timestamp = document.createElement('div');
   timestamp.innerHTML = `${email["timestamp"]}`;
+  timestamp.className = inside_class;
+
+  if (email["read"] === true){
+    new_email.style.backgroundColor = '#FAF0E6';
+  }
  
   const view = document.querySelector('#emails-view');
   
