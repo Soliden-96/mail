@@ -19,6 +19,7 @@ function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#view-email').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -33,6 +34,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#view-email').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -49,6 +51,7 @@ function load_mailbox(mailbox) {
 function add_email(email){
   const new_email = document.createElement('div');
   new_email.className = 'border border-secondary-subtle';
+  new_email.addEventListener('click',() => view_email(email["id"]));
   
   const inside_class='d-inline-block w-25';
   
@@ -95,4 +98,29 @@ function send_email() {
   
   load_mailbox('sent');
   return false;
+}
+
+function view_email(email_id) {
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#view-email').style.display = 'block';
+
+  fetch(`emails/${email_id}`,{
+    method: 'PUT',
+    body: JSON.stringify({
+      read:true
+    })
+  })
+
+  fetch(`emails/${email_id}`)
+  .then(response => response.json())
+  .then(data => { 
+    const email_info = data;
+    console.log(email_info);
+    document.querySelector('#from').innerHTML = "From: " + email_info["sender"];
+    document.querySelector('#to').innerHTML = "To: " + email_info["recipients"];
+    document.querySelector('#subject').innerHTML = email_info["subject"];
+    document.querySelector('#timestamp').innerHTML = email_info["timestamp"];
+    document.querySelector('#content').innerHTML = email_info["body"];
+  })
 }

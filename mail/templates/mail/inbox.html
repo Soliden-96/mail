@@ -12,11 +12,7 @@
     <hr>
 
     <div id="emails-view">
-        <table>
-            <tbody id="emails-list">
-
-            </tbody>
-        </table>
+    
     </div>
 
     <div id="compose-view">
@@ -34,6 +30,14 @@
             <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
             <input type="submit" class="btn btn-primary">
         </form>
+    </div>
+
+    <div id="view-email" class="border border-secondary-subtle">
+        <h5 class="mb-2" id="from"></h5>
+        <h5 class="mb-2" id="to"></h5>
+        <h6 class="mb-2" id="subject"></h6>
+        <h6 class="mb-2" id="timestamp"></h6>
+        <div class="mb-2" id="content"></div>
     </div>
 {% endblock %}
 
