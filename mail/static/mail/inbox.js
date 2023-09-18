@@ -52,6 +52,7 @@ function add_email(email){
   const new_email = document.createElement('div');
   new_email.className = 'border border-secondary-subtle';
   new_email.addEventListener('click',() => view_email(email["id"]));
+  new_email.style.cursor = 'grab';
   
   const inside_class='d-inline-block w-25';
   
@@ -67,13 +68,30 @@ function add_email(email){
   timestamp.innerHTML = `${email["timestamp"]}`;
   timestamp.className = inside_class;
 
+  const button = document.createElement('button');
+  button.className = "btn btn-sm btn-outline-primary d-inline-block w-10";
+  if (email["archived"] === true){
+    button.innerHTML = 'Unarchive';
+  } else {
+    button.innerHTML = 'Archive';
+  }
+  button.addEventListener('click',(event) => {
+    event.stopPropagation();
+    archiviation(email["id"]);
+    new_email.style.display = 'none';
+    setTimeout(() => {
+      load_mailbox('inbox');
+    },100);
+  });
+  
+
   if (email["read"] === true){
     new_email.style.backgroundColor = '#FAF0E6';
   }
  
   const view = document.querySelector('#emails-view');
   
-  new_email.append(sender,subject,timestamp);
+  new_email.append(sender,subject,timestamp,button);
   view.append(new_email);
 }
 
@@ -110,7 +128,7 @@ function view_email(email_id) {
     body: JSON.stringify({
       read:true
     })
-  })
+  });
 
   fetch(`emails/${email_id}`)
   .then(response => response.json())
@@ -122,5 +140,22 @@ function view_email(email_id) {
     document.querySelector('#subject').innerHTML = email_info["subject"];
     document.querySelector('#timestamp').innerHTML = email_info["timestamp"];
     document.querySelector('#content').innerHTML = email_info["body"];
-  })
+  });
+}
+
+function archiviation(email_id) {
+
+  fetch(`emails/${email_id}`)
+  .then(response => response.json())
+  .then(data =>{
+     archived = data["archived"];
+  
+    fetch(`emails/${email_id}`,{
+      method: 'PUT',
+      body: JSON.stringify({
+      archived: !archived
+    })
+    });
+  });
+  
 }
