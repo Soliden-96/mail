@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block body %}
-    <h2>{{ request.user.email }}</h2>
+    <h2 id="user-email">{{ request.user.email }}</h2>
 
     <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
     <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
@@ -37,6 +37,7 @@
         <h6 class="mb-2" id="to"></h5>
         <h6 class="mb-2" id="subject"></h5>
         <h6 class="mb-2" id="timestamp"></h5>
+        <button id="reply" type="button"  class="btn btn-sm btn-outline-primary mb-2">Reply</button>
         <hr>
         <div class="mb-2" id="content"></div>
     </div>

@@ -7,8 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
 
-   // Compose email event listener
-  document.querySelector('#compose-form').addEventListener('submit', () => send_email);
+   // Compose and Reply event listeners
+  document.querySelector('#compose-form').addEventListener('submit', () => {
+    send_email()});
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -27,6 +28,25 @@ function compose_email() {
   document.querySelector('#compose-body').value = '';
 
  
+}
+
+function reply(email_id){
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#view-email').style.display = 'none';
+
+  fetch(`emails/${email_id}`)
+  .then(response => response.json())
+  .then(data => {
+    const email = data;
+    document.querySelector('#compose-recipients').value = email["sender"];
+    if (email["subject"].startsWith('Re:')){
+      document.querySelector('#compose-subject').value = email["subject"];
+    }else{
+      document.querySelector('#compose-subject').value = `Re: ${email["subject"]}`;
+    }
+    document.querySelector('#compose-body').value = `On ${email["timestamp"]} ${email["sender"]} wrote: ${email["body"]}`;
+  })  
 }
 
 function load_mailbox(mailbox) {
@@ -112,9 +132,9 @@ function send_email() {
   .then(response=>response.json())
   .then(result=>{
     console.log(result);
+    load_mailbox('sent');
   });
   
-  load_mailbox('sent');
   return false;
 }
 
@@ -140,7 +160,9 @@ function view_email(email_id) {
     document.querySelector('#subject').innerHTML = email_info["subject"];
     document.querySelector('#timestamp').innerHTML = email_info["timestamp"];
     document.querySelector('#content').innerHTML = email_info["body"];
+    document.querySelector('#reply').addEventListener('click',() => reply(email_info["id"]));
   });
+
 }
 
 function archiviation(email_id) {
