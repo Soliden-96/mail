@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#compose').addEventListener('click', compose_email);
 
    // Compose and Reply event listeners
-  document.querySelector('#compose-form').addEventListener('submit', () => {
-    send_email()});
+  document.querySelector('#compose-form').addEventListener('submit', (event) => {
+    send_email(event)});
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -45,7 +45,7 @@ function reply(email_id){
     }else{
       document.querySelector('#compose-subject').value = `Re: ${email["subject"]}`;
     }
-    document.querySelector('#compose-body').value = `On ${email["timestamp"]} ${email["sender"]} wrote: ${email["body"]}`;
+    document.querySelector('#compose-body').innerHTML = `On ${email["timestamp"]} ${email["sender"]} wrote:${email["body"]}`;
   })  
 }
 
@@ -115,7 +115,8 @@ function add_email(email){
   view.append(new_email);
 }
 
-function send_email() {
+function send_email(event) {
+  event.preventDefault();
 
   const recipients = document.querySelector('#compose-recipients').value;
   const subject = document.querySelector('#compose-subject').value;
@@ -132,10 +133,9 @@ function send_email() {
   .then(response=>response.json())
   .then(result=>{
     console.log(result);
-    load_mailbox('sent');
   });
   
-  return false;
+  load_mailbox('sent');
 }
 
 function view_email(email_id) {
