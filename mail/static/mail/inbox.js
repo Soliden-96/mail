@@ -45,7 +45,7 @@ function reply(email_id){
     }else{
       document.querySelector('#compose-subject').value = `Re: ${email["subject"]}`;
     }
-    document.querySelector('#compose-body').innerHTML = `On ${email["timestamp"]} ${email["sender"]} wrote:${email["body"]}`;
+    document.querySelector('#compose-body').value = `\n\n-----------------\n\nOn ${email["timestamp"]} \n${email["sender"]} wrote:\n${email["body"]}`;
   })  
 }
 
@@ -64,21 +64,29 @@ function load_mailbox(mailbox) {
   .then(response => response.json())
   .then(data => {
     console.log(data);
-    data.forEach(email => add_email(email));
+    data.forEach(email => add_email(email,mailbox));
   });
 }
 
-function add_email(email){
+function add_email(email,mailbox){
   const new_email = document.createElement('div');
   new_email.className = 'border border-secondary-subtle';
   new_email.addEventListener('click',() => view_email(email["id"]));
   new_email.style.cursor = 'grab';
+  new_email.style.display = 'flex';
   
   const inside_class='d-inline-block w-25';
   
-  const sender = document.createElement('div');
-  sender.innerHTML = `<strong>${email["sender"]}</strong>`;
-  sender.className = inside_class;
+  const sender_receiver = document.createElement('div');
+  if (mailbox==='sent'){
+    sender_receiver.innerHTML = `<strong>To: ${email["recipients"]}</strong>`;
+  }else{
+    sender_receiver.innerHTML = `<strong>${email["sender"]}</strong>`;
+  }
+  sender_receiver.className = inside_class;
+  sender_receiver.style.whiteSpace = 'nowrap';
+  sender_receiver.style.overflow = 'hidden';
+  sender_receiver.style.textOverflow = 'ellipsis';
 
   const subject = document.createElement('div');
   subject.innerHTML = `${email["subject"]}`;
@@ -88,31 +96,34 @@ function add_email(email){
   timestamp.innerHTML = `${email["timestamp"]}`;
   timestamp.className = inside_class;
 
-  const button = document.createElement('button');
-  button.className = "btn btn-sm btn-outline-primary d-inline-block w-10";
-  if (email["archived"] === true){
-    button.innerHTML = 'Unarchive';
-  } else {
-    button.innerHTML = 'Archive';
-  }
-  button.addEventListener('click',(event) => {
-    event.stopPropagation();
-    archiviation(email["id"]);
-    new_email.style.display = 'none';
-    setTimeout(() => {
-      load_mailbox('inbox');
-    },100);
-  });
-  
-
   if (email["read"] === true){
-    new_email.style.backgroundColor = '#FAF0E6';
+    new_email.style.backgroundColor = '#EDEDED';
   }
  
   const view = document.querySelector('#emails-view');
   
-  new_email.append(sender,subject,timestamp,button);
+  new_email.append(sender_receiver,subject,timestamp);
   view.append(new_email);
+
+  if (mailbox!=='sent'){
+    var button = document.createElement('button');
+    button.className = "btn btn-sm btn-outline-primary d-inline-block w-10";
+    if (email["archived"] === true){
+      button.innerHTML = 'Unarchive';
+    } else {
+      button.innerHTML = 'Archive';
+    }
+    new_email.append(button);
+    button.addEventListener('click',(event) => {
+      event.stopPropagation();
+      archiviation(email["id"]);
+      new_email.style.display = 'none';
+      setTimeout(() => {
+        load_mailbox('inbox');
+      },100);
+    });
+  }
+  
 }
 
 function send_email(event) {
@@ -134,8 +145,9 @@ function send_email(event) {
   .then(result=>{
     console.log(result);
   });
-  
-  load_mailbox('sent');
+  setTimeout(() => {
+    load_mailbox('sent');
+  },100);
 }
 
 function view_email(email_id) {
@@ -159,7 +171,8 @@ function view_email(email_id) {
     document.querySelector('#to').innerHTML = "To: " + email_info["recipients"];
     document.querySelector('#subject').innerHTML = email_info["subject"];
     document.querySelector('#timestamp').innerHTML = email_info["timestamp"];
-    document.querySelector('#content').innerHTML = email_info["body"];
+    const formatted_body = email_info["body"].replace(/\n/g,'<br>');
+    document.querySelector('#content').innerHTML = formatted_body;
     document.querySelector('#reply').addEventListener('click',() => reply(email_info["id"]));
   });
 
